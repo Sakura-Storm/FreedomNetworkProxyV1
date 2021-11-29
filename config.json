@@ -1,0 +1,9 @@
+{
+  "port": 8443,
+  "ssl": false,
+  "title": "Schoology",
+  "prefix": "/astrox/",
+  "codec": "xor",
+  "blacklist": ["accounts.google.com"],
+  "smokeprefix": "/astrox2/"
+}
