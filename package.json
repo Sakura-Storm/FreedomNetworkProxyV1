@@ -1,14 +1,14 @@
 {
   "name": "FreedomNetworkProxy",
   "version": "1.0.0",
-  "description": "#1 Best website to view anything on a School Computer.",
+  "description": "Your one stop to freedom.",
   "main": "start.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node start.js"
   },
   "keywords": [],
-  "author": "FortNetworkHighSchool",
+  "author": "JoeSwanson",
   "license": "MIT",
   "dependencies": {
     "acorn-hammerhead": "^0.5.0",
