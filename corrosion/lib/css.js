@@ -9,20 +9,22 @@ class CSSRewriter {
         this.ctx = ctx;
     };
     process(source, config = {}) {
-        const ast = csstree.parse(source, { 
+        const ast = csstree.parse(source, {
             context: config.context || 'stylesheet',
-            parseCustomProperty: true, 
+            parseCustomProperty: true,
         });
-        const urls = csstree.findAll(ast, node => 
+        const urls = csstree.findAll(ast, node =>
             node.type == 'Url'
         );
-        const imports = csstree.findAll(ast, node => 
+        const imports = csstree.findAll(ast, node =>
             node.type == 'Atrule' && node.name == 'import' && node.prelude && node.prelude.type == 'AtrulePrelude' && node.prelude.children.head.data.type == 'String'
         );
-        urls.forEach(({ value }) => {
-            switch(value.type) {
+        urls.forEach(({
+            value
+        }) => {
+            switch (value.type) {
                 case 'String':
-                    const quote =  value.value.substring(0, 1);
+                    const quote = value.value.substring(0, 1);
                     value.value = quote + this.ctx.url.wrap(value.value.slice(1).slice(0, -1), config) + quote;
                     break;
                 case 'Raw':
@@ -30,28 +32,34 @@ class CSSRewriter {
                     break;
             };
         });
-        imports.forEach(({ prelude }) => {
-            const { data } = prelude.children.head;
-            const quote =  data.value.substring(0, 1);
+        imports.forEach(({
+            prelude
+        }) => {
+            const {
+                data
+            } = prelude.children.head;
+            const quote = data.value.substring(0, 1);
             data.value = quote + this.ctx.url.wrap(data.value.slice(1).slice(0, -1), config) + quote;
         });
         return csstree.generate(ast);
     };
     source(processed, config = {}) {
-        const ast = csstree.parse(processed, { 
+        const ast = csstree.parse(processed, {
             context: config.context || 'stylesheet',
-            parseCustomProperty: true, 
+            parseCustomProperty: true,
         });
-        const urls = csstree.findAll(ast, node => 
+        const urls = csstree.findAll(ast, node =>
             node.type == 'Url'
         );
-        const imports = csstree.findAll(ast, node => 
+        const imports = csstree.findAll(ast, node =>
             node.type == 'Atrule' && node.name == 'import' && node.prelude && node.prelude.type == 'AtrulePrelude' && node.prelude.children.head.data.type == 'String'
         );
-        urls.forEach(({ value }) => {
-            switch(value.type) {
+        urls.forEach(({
+            value
+        }) => {
+            switch (value.type) {
                 case 'String':
-                    const quote =  value.value.substring(0, 1);
+                    const quote = value.value.substring(0, 1);
                     value.value = quote + this.ctx.url.unwrap(value.value.slice(1).slice(0, -1), config) + quote;
                     break;
                 case 'Raw':
@@ -59,13 +67,17 @@ class CSSRewriter {
                     break;
             };
         });
-        imports.forEach(({ prelude }) => {
-            const { data } = prelude.children.head;
-            const quote =  data.value.substring(0, 1);
+        imports.forEach(({
+            prelude
+        }) => {
+            const {
+                data
+            } = prelude.children.head;
+            const quote = data.value.substring(0, 1);
             data.value = quote + this.ctx.url.unwrap(data.value.slice(1).slice(0, -1), config) + quote;
         });
         return csstree.generate(ast);
-    };  
+    };
 };
 
 module.exports = CSSRewriter;

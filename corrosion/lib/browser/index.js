@@ -12,7 +12,7 @@ const defaultConfig = {
     serviceWorker: false,
     url: null,
     window: false,
-};  
+};
 
 class Corrosion extends require('../rewrite') {
     constructor(config = defaultConfig) {
@@ -22,7 +22,9 @@ class Corrosion extends require('../rewrite') {
         this.serviceWorker = this.config.serviceWorker || false;
         this.window = this.config.window;
         this.document = this.serviceWorker ? this.window.document : {};
-        this._url = new URL((this.config.url || this.url.unwrap(this.window.location.href, { origin: this.window.location.origin, })));
+        this._url = new URL((this.config.url || this.url.unwrap(this.window.location.href, {
+            origin: this.window.location.origin,
+        })));
         this.originalXhr = this.window.XMLHttpRequest;
         this.meta = {
             origin: this.window.location.origin,
@@ -43,7 +45,7 @@ class Corrosion extends require('../rewrite') {
         if (this.serviceWorker) return false;
         try {
             return this.window.parent.$corrosion ? this.window.parent : this.window;
-        } catch(e) {
+        } catch (e) {
             return this.window;
         };
     };
@@ -51,7 +53,7 @@ class Corrosion extends require('../rewrite') {
         if (this.serviceWorker) return false;
         try {
             return this.window.top.$corrosion ? this.window.top : this.parent;
-        } catch(e) {
+        } catch (e) {
             return this.parent;
         };
     };
@@ -87,7 +89,7 @@ class Corrosion extends require('../rewrite') {
             return this.top.$corrosion.set$m(this.top, key, val, operator);
         };
         if (obj == this.window && key == 'location' || !this.serviceWorker && obj == this.window.document && key == 'location') obj = this;
-        switch(operator) {
+        switch (operator) {
             case '+=':
                 return obj[key] += val;
             case '-=':
@@ -113,11 +115,11 @@ class Corrosion extends require('../rewrite') {
             case '|=':
                 return obj[key] |= val;
             case '&&=':
-                return obj[key] &&= val;
+                return obj[key] && = val;
             case '||=':
-                return obj[key] ||= val;
+                return obj[key] || = val;
             case '??=':
-                return obj[key] ??= val;
+                return obj[key] ? ? = val;
             case '++':
                 return obj[key]++;
             case '--':
@@ -146,7 +148,7 @@ class Corrosion extends require('../rewrite') {
         if (obj == this.window.location) return this.set$(this.location, val, operator);
         if (!this.serviceWorker && this.window != this.window.parent && obj == this.window.parent) return this.parent.set$(this.parent, val, operator);
         if (!this.serviceWorker && this.window != this.window.top && obj == this.window.top) return this.top.set$(this.top, val, operator);
-        switch(operator) {
+        switch (operator) {
             case '+=':
                 return obj += val;
             case '-=':
@@ -172,11 +174,11 @@ class Corrosion extends require('../rewrite') {
             case '|=':
                 return obj |= val;
             case '&&=':
-                return obj &&= val;
+                return obj && = val;
             case '||=':
-                return obj ||= val;
+                return obj || = val;
             case '??=':
-                return obj ??= val;
+                return obj ? ? = val;
             case '++':
                 return obj++;
             case '--':
@@ -189,7 +191,7 @@ class Corrosion extends require('../rewrite') {
     updateLocation() {
         this._url = new URL(this.url.unwrap(this.window.location.href, this.meta));
         this.location = createLocation(this, this._url);
-    }; 
+    };
 };
 
 globalThis.Corrosion = Corrosion;

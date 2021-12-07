@@ -27,6 +27,6 @@ class Rewrite {
         this.js = new JSRewriter(this);
         this.html = new HTMLRewriter(this);
     };
-};  
- 
+};
+
 module.exports = Rewrite;

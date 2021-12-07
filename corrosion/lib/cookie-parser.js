@@ -3,32 +3,32 @@
 // Do not use any browser or node-specific API!
 // -------------------------------------------------------------
 class CookieStore {
-    constructor(val = ''){
+    constructor(val = '') {
         this.data = {};
         val.split(';').map(cookie => {
-            var [ name, val = ''] = cookie.trimStart().split('=');
+            var [name, val = ''] = cookie.trimStart().split('=');
             if (name) this.data[name] = val;
         });
     };
-    has(name){
+    has(name) {
         if (!name || !this.data[name]) return false;
         return true;
     };
-    get(name){
-        return this.has(name) ? this.data[name] : null; 
+    get(name) {
+        return this.has(name) ? this.data[name] : null;
     };
-    set(name, val){
+    set(name, val) {
         if (!name || !val) return;
         return this.data[name] = val;
     };
-    delete(name){
+    delete(name) {
         if (!name) return;
         return delete this.data[name];
     };
-    forEach(action = (node, key) => null){
+    forEach(action = (node, key) => null) {
         for (let prop in this.data) action(this.data[prop], prop);
     };
-    serialize(){
+    serialize() {
         var str = '';
         for (let i in this.data) str += ` ${i}=${this.data[i]};`;
         return str.substr(1);
@@ -36,13 +36,15 @@ class CookieStore {
 };
 
 class SetCookie {
-    constructor(val = ''){
+    constructor(val = '') {
 
-        var [ [ name, value = '' ], ...data ] = val.split(';').map(str => str.trimStart().split('='));
+        var [
+            [name, value = ''], ...data
+        ] = val.split(';').map(str => str.trimStart().split('='));
 
         this.name = name;
         this.value = value;
-        this.expires = null;  
+        this.expires = null;
         this.maxAge = null;
         this.domain = null;
         this.secure = false;
@@ -51,7 +53,7 @@ class SetCookie {
         this.sameSite = null;
 
         data.forEach(([name = null, value = null]) => {
-            if (typeof name == 'string') switch(name.toLowerCase()){
+            if (typeof name == 'string') switch (name.toLowerCase()) {
                 case 'domain':
                     this.domain = value;
                     break;
@@ -75,8 +77,8 @@ class SetCookie {
                     break;
             };
         });
-    }; 
-    serialize(){
+    };
+    serialize() {
         if (!this.name) return;
         var str = `${this.name}=${this.value};`;
         if (this.expires) str += ` Expires=${this.expires};`;

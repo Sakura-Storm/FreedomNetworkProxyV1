@@ -1,22 +1,22 @@
 @import url('https://fonts.googleapis.com/css2?family=Ubuntu:wght@500&display=swap');
 
 head {
-	text-align: center;
-	color: grey;
-	font-size: 69px;
-	font-family: "Roboto";
+    text-align: center;
+    color: grey;
+    font-size: 69px;
+    font-family: "Roboto";
 }
 
 body {
-	background-color: #1f1f2e;
-	text-align: center;
+    background-color: #1f1f2e;
+    text-align: center;
     color: grey;
-	font-size: 50px;
-	font-family: "Ubuntu";
+    font-size: 50px;
+    font-family: "Ubuntu";
 }
 
 div {
-	font-size: 30px;
+    font-size: 30px;
 }
 
 footer {
@@ -29,7 +29,8 @@ footer {
     color: grey;
 }
 
-footer, footer a {
+footer,
+footer a {
     font-size: 15px;
     text-decoration: none;
 }

@@ -2,7 +2,10 @@
 // WARNING: this file is used by both the client and the server.
 // Do not use any browser or node-specific API!
 // -------------------------------------------------------------
-const { SetCookie, CookieStore } = require('./cookie-parser');
+const {
+    SetCookie,
+    CookieStore
+} = require('./cookie-parser');
 
 class CookieRewriter {
     constructor(ctx) {
@@ -20,10 +23,10 @@ class CookieRewriter {
     };
     encode(input, config = {}) {
         if (Array.isArray(input)) {
-            const rw = [ ...input ];
+            const rw = [...input];
             for (let i in rw) rw[i] = this.encode(rw[i], config);
             return rw;
-        };  
+        };
         const url = new URL(config.url);
         const cookie = new SetCookie(input);
         if (!cookie.name) return null;

@@ -3,19 +3,19 @@ function createDocumentRewriter(ctx) {
         if (ctx.serviceWorker) return;
         const {
             HTMLMediaElement,
-            HTMLScriptElement, 
-            HTMLAudioElement, 
-            HTMLVideoElement, 
-            HTMLInputElement, 
-            HTMLEmbedElement, 
-            HTMLTrackElement, 
-            HTMLAnchorElement, 
+            HTMLScriptElement,
+            HTMLAudioElement,
+            HTMLVideoElement,
+            HTMLInputElement,
+            HTMLEmbedElement,
+            HTMLTrackElement,
+            HTMLAnchorElement,
             HTMLIFrameElement,
             HTMLAreaElement,
-            HTMLLinkElement, 
+            HTMLLinkElement,
             HTMLBaseElement,
             HTMLFormElement,
-            HTMLImageElement, 
+            HTMLImageElement,
             HTMLSourceElement,
         } = ctx.window;
         const cookie = Object.getOwnPropertyDescriptor(ctx.window.Document.prototype, 'cookie');
@@ -28,8 +28,8 @@ function createDocumentRewriter(ctx) {
 
         if (ctx.window.Document.prototype.write) {
             ctx.window.Document.prototype.write = new Proxy(ctx.window.Document.prototype.write, {
-                apply: (target, that , args) => {
-                    if (args.length) args = [ ctx.html.process(args.join(''), ctx.meta) ];
+                apply: (target, that, args) => {
+                    if (args.length) args = [ctx.html.process(args.join(''), ctx.meta)];
                     return Reflect.apply(target, that, args);
                 },
             });
@@ -43,16 +43,16 @@ function createDocumentRewriter(ctx) {
                     },
                 }),
                 set: new Proxy(cookie.set, {
-                    apply: (target, that, [ val ]) => {
-                        return Reflect.apply(target, that, [ ctx.config.cookie ? ctx.cookies.encode(val, ctx.meta) : '' ]);
+                    apply: (target, that, [val]) => {
+                        return Reflect.apply(target, that, [ctx.config.cookie ? ctx.cookies.encode(val, ctx.meta) : '']);
                     },
                 }),
             });
         };
         if (ctx.window.Document.prototype.writeln) {
             ctx.window.Document.prototype.writeln = new Proxy(ctx.window.Document.prototype.writeln, {
-                apply: (target, that , args) => {
-                    if (args.length) args = [ ctx.html.process(args.join(''), ctx.meta) ];
+                apply: (target, that, args) => {
+                    if (args.length) args = [ctx.html.process(args.join(''), ctx.meta)];
                     return Reflect.apply(target, that, args);
                 },
             });
@@ -66,7 +66,7 @@ function createDocumentRewriter(ctx) {
                             value: args[1],
                             node: that,
                         });
-                        switch(handler) {
+                        switch (handler) {
                             case 'url':
                                 Reflect.apply(target, that, [`corrosion-${args[0]}`, args[1]]);
                                 //if (that.tagName == 'SCRIPT' && args[0] == 'src') flags.push('js');
@@ -78,7 +78,10 @@ function createDocumentRewriter(ctx) {
                                 break;
                             case 'css':
                                 Reflect.apply(target, that, [`corrosion-${args[0]}`, args[1]]);
-                                args[1] = ctx.css.process(args[1], { ...ctx.meta, context: 'declarationList' });
+                                args[1] = ctx.css.process(args[1], {
+                                    ...ctx.meta,
+                                    context: 'declarationList'
+                                });
                                 break;
                             case 'html':
                                 Reflect.apply(target, that, [`corrosion-${args[0]}`, args[1]]);
@@ -99,10 +102,13 @@ function createDocumentRewriter(ctx) {
                     return Reflect.apply(target, that, args);
                 },
             });
-        }; 
+        };
         ctx.window.CSSStyleDeclaration.prototype.setProperty = new Proxy(ctx.window.CSSStyleDeclaration.prototype.setProperty, {
             apply: (target, that, args) => {
-                if (args[1]) args[1] = ctx.css.process(args[1], { context: 'value', ...ctx.meta, });
+                if (args[1]) args[1] = ctx.css.process(args[1], {
+                    context: 'value',
+                    ...ctx.meta,
+                });
                 return Reflect.apply(target, that, args);
             },
         });
@@ -128,10 +134,10 @@ function createDocumentRewriter(ctx) {
                     },
                 }),
                 set: new Proxy(descriptor.set, {
-                    apply(target, that, [ val ]) {
-                        return Reflect.apply(target, that, [ val ? ctx.html.process(val.toString(), ctx.meta) : val, ]);
+                    apply(target, that, [val]) {
+                        return Reflect.apply(target, that, [val ? ctx.html.process(val.toString(), ctx.meta) : val, ]);
                     },
-                }), 
+                }),
             });
         });
         [
@@ -146,14 +152,14 @@ function createDocumentRewriter(ctx) {
                 set(val) {
                     return this.setProperty(cssProperty, val);
                 },
-            }); 
+            });
         });
         Object.defineProperty(ctx.window.Document.prototype, 'domain', {
             get: new Proxy(domain.get, {
                 apply: () => spoofDomain,
             }),
             set: new Proxy(domain.set, {
-                apply: (target, that, [ val ]) => {
+                apply: (target, that, [val]) => {
                     if (!val.toString().endsWith(ctx.location.hostname.split('.').slice(-2).join('.'))) return Reflect.apply(target, that, ['']);
                     return spoofDomain = val;
                 },
@@ -164,7 +170,7 @@ function createDocumentRewriter(ctx) {
                 apply: () => spoofTitle,
             }),
             set: new Proxy(title.set, {
-                apply: (target, that, [ val ]) => spoofTitle = val, 
+                apply: (target, that, [val]) => spoofTitle = val,
             }),
         });
         Object.defineProperty(ctx.window.Navigator.prototype, 'cookieEnabled', {
@@ -180,36 +186,35 @@ function createDocumentRewriter(ctx) {
                 },
             }),
         });
-        [
-            {
-                elements: [ HTMLScriptElement, HTMLMediaElement, HTMLImageElement, HTMLAudioElement, HTMLVideoElement, HTMLInputElement, HTMLEmbedElement, HTMLIFrameElement, HTMLTrackElement, HTMLSourceElement],
+        [{
+                elements: [HTMLScriptElement, HTMLMediaElement, HTMLImageElement, HTMLAudioElement, HTMLVideoElement, HTMLInputElement, HTMLEmbedElement, HTMLIFrameElement, HTMLTrackElement, HTMLSourceElement],
                 properties: ['src'],
                 handler: 'url',
             },
             {
-                elements: [ HTMLFormElement ],
+                elements: [HTMLFormElement],
                 properties: ['action'],
                 handler: 'url',
             },
             {
-                elements: [ HTMLAnchorElement, HTMLAreaElement, HTMLLinkElement, HTMLBaseElement ],
+                elements: [HTMLAnchorElement, HTMLAreaElement, HTMLLinkElement, HTMLBaseElement],
                 properties: ['href'],
                 handler: 'url',
             },
             {
-                elements: [ HTMLImageElement, HTMLSourceElement ],
+                elements: [HTMLImageElement, HTMLSourceElement],
                 properties: ['srcset'],
                 handler: 'srcset',
-            },  
+            },
             {
-                elements: [ HTMLScriptElement ],
+                elements: [HTMLScriptElement],
                 properties: ['integrity'],
                 handler: 'delete',
             },
             {
-                elements: [ HTMLIFrameElement ],
+                elements: [HTMLIFrameElement],
                 properties: ['contentWindow'],
-                handler: 'window',  
+                handler: 'window',
             },
         ].forEach(entry => {
             entry.elements.forEach(element => {
@@ -222,7 +227,7 @@ function createDocumentRewriter(ctx) {
                             apply: (target, that, args) => {
                                 let val = Reflect.apply(target, that, args);
                                 let flags = [];
-                                switch(entry.handler) {
+                                switch (entry.handler) {
                                     case 'url':
                                         //if (that.tagName == 'SCRIPT' && property == 'src') flags.push('js');
                                         val = ctx.url.unwrap(val, ctx.meta);
@@ -235,20 +240,23 @@ function createDocumentRewriter(ctx) {
                                         break;
                                     case 'window':
                                         try {
-                                            if (!val.$corrosion)  {
-                                                val.$corrosion = new ctx.constructor({ ...ctx.config, window: val, });
+                                            if (!val.$corrosion) {
+                                                val.$corrosion = new ctx.constructor({
+                                                    ...ctx.config,
+                                                    window: val,
+                                                });
                                                 val.$corrosion.init();
                                                 val.$corrosion.meta = ctx.meta;
                                             };
-                                        } catch(e) {};
+                                        } catch (e) {};
                                 };
                                 return val;
-                            }, 
+                            },
                         }) : undefined,
                         set: descriptor.set ? new Proxy(descriptor.set, {
-                            apply(target, that, [ val ]) {
+                            apply(target, that, [val]) {
                                 let newVal = val;
-                                switch(entry.handler) {
+                                switch (entry.handler) {
                                     case 'url':
                                         newVal = ctx.url.wrap(newVal, ctx.meta);
                                         break;
@@ -259,7 +267,7 @@ function createDocumentRewriter(ctx) {
                                         that.setAttribute(property, newVal);
                                         return newVal;
                                 };
-                                return Reflect.apply(target, that, [ newVal ]);
+                                return Reflect.apply(target, that, [newVal]);
                             },
                         }) : undefined,
                     });

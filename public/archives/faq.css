@@ -113,9 +113,11 @@ button:hover {
   width: 5px;
   height: 15px;
 }
+
 ::-webkit-scrollbar-track-piece {
   background-color: #1f1f2e;
 }
+
 ::-webkit-scrollbar-thumb:vertical {
   height: 30px;
   background-color: #0A4C95;

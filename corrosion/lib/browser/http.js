@@ -1,10 +1,13 @@
 function createHttpRewriter(ctx = {}) {
     return function rewriteHttp() {
-        if (ctx.window.Request) { 
+        if (ctx.window.Request) {
             const requestURL = Object.getOwnPropertyDescriptor(ctx.window.Request.prototype, 'url');
             ctx.window.Request = new Proxy(ctx.window.Request, {
                 construct(target, args) {
-                    if (args[0]) args[0] = ctx.url.wrap(args[0], { ...ctx.meta, flags: ['xhr'], })
+                    if (args[0]) args[0] = ctx.url.wrap(args[0], {
+                        ...ctx.meta,
+                        flags: ['xhr'],
+                    })
                     return Reflect.construct(target, args);
                 },
             });
@@ -36,11 +39,14 @@ function createHttpRewriter(ctx = {}) {
                 },
             });
         };
-        if (ctx.window.fetch) { 
+        if (ctx.window.fetch) {
             ctx.window.fetch = new Proxy(ctx.window.fetch, {
                 apply: (target, that, args) => {
                     if (args[0] instanceof ctx.window.Request) return Reflect.apply(target, that, args);
-                    if (args[0]) args[0] = ctx.url.wrap(args[0], { ...ctx.meta, flags: ['xhr'], });
+                    if (args[0]) args[0] = ctx.url.wrap(args[0], {
+                        ...ctx.meta,
+                        flags: ['xhr'],
+                    });
                     return Reflect.apply(target, that, args);
                 },
             });
@@ -48,7 +54,10 @@ function createHttpRewriter(ctx = {}) {
         if (ctx.window.Navigator && ctx.window.Navigator.prototype.sendBeacon) {
             ctx.window.Navigator.prototype.sendBeacon = new Proxy(ctx.window.Navigator.prototype.sendBeacon, {
                 apply: (target, that, args) => {
-                    if (args[0]) ctx.url.wrap(args[0], { ...ctx.meta, flags: ['xhr'], });
+                    if (args[0]) ctx.url.wrap(args[0], {
+                        ...ctx.meta,
+                        flags: ['xhr'],
+                    });
                     return Reflect.apply(target, that, args);
                 },
             });
@@ -57,7 +66,10 @@ function createHttpRewriter(ctx = {}) {
             const responseURL = Object.getOwnPropertyDescriptor(ctx.window.XMLHttpRequest.prototype, 'responseURL');
             ctx.window.XMLHttpRequest.prototype.open = new Proxy(ctx.window.XMLHttpRequest.prototype.open, {
                 apply: (target, that, args) => {
-                    if (args[1]) args[1] = ctx.url.wrap(args[1], { ...ctx.meta, flags: ['xhr'], });
+                    if (args[1]) args[1] = ctx.url.wrap(args[1], {
+                        ...ctx.meta,
+                        flags: ['xhr'],
+                    });
                     return Reflect.apply(target, that, args);
                 },
             });

@@ -9,10 +9,14 @@ function createGateway(ctx) {
             if (!query.has('url')) return clientResponse.end();
             const url = query.get('url');
             if (/https?:\/\/([a-zA-Z0-9\-\_])|([a-zA-Z0-9\-\_])\.([a-zA-Z])/.test(url)) {
-                clientResponse.writeHead(301, { Location: ctx.url.wrap(/https?:\/\//.test(url) ? url : 'http://' + url) });
+                clientResponse.writeHead(301, {
+                    Location: ctx.url.wrap(/https?:\/\//.test(url) ? url : 'http://' + url)
+                });
                 clientResponse.end();
             } else {
-                clientResponse.writeHead(301, { Location: ctx.url.wrap('https://searx.degenerate.info/search?q=' + url) });
+                clientResponse.writeHead(301, {
+                    Location: ctx.url.wrap('https://searx.degenerate.info/search?q=' + url)
+                });
                 clientResponse.end();
             };
         });
