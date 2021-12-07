@@ -3,7 +3,7 @@ const zlib = require('zlib');
 function decompress(ctx) {
     if (!ctx.body || !ctx.remoteResponse) return;
     try {
-        switch(ctx.headers['content-encoding']) {
+        switch (ctx.headers['content-encoding']) {
             case 'br':
                 ctx.body = zlib.brotliDecompressSync(ctx.body);
                 break;
@@ -14,7 +14,7 @@ function decompress(ctx) {
                 ctx.body = zlib.inflateRawSync(ctx.body);
                 break;
         };
-    } catch(err) {};
+    } catch (err) {};
     delete ctx.headers['content-encoding'];
     return true;
 };

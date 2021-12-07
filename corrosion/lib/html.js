@@ -7,8 +7,7 @@ const parse5 = require('parse5');
 class HTMLRewriter {
     constructor(ctx) {
         this.ctx = ctx;
-        this.attrs = [
-            {
+        this.attrs = [{
                 tags: ['form', 'object', 'a', 'link', 'area', 'base', 'script', 'img', 'audio', 'video', 'input', 'embed', 'iframe', 'track', 'source', 'html', 'table', 'head'],
                 attrs: ['src', 'href', 'ping', 'data', 'movie', 'action', 'poster', 'profile', 'background'],
                 handler: 'url',
@@ -40,10 +39,10 @@ class HTMLRewriter {
         const meta = {
             origin: config.origin,
             base: new URL(config.base),
-        };  
+        };
         iterate(ast, node => {
             if (!node.tagName) return;
-            switch(node.tagName) {
+            switch (node.tagName) {
                 case 'STYLE':
                     if (node.textContent) node.textContent = this.ctx.css.process(node.textContent, meta);
                     break;
@@ -65,21 +64,30 @@ class HTMLRewriter {
                 let flags = [];
                 if (node.tagName == 'SCRIPT' && attr.name == 'src') flags.push('js');
                 if (node.tagName == 'LINK' && node.getAttribute('rel') == 'stylesheet') flags.push('css');
-                switch(handler) {
+                switch (handler) {
                     case 'url':
                         node.setAttribute(`corrosion-${attr.name}`, attr.value);
-                        attr.value = this.ctx.url.wrap(attr.value, { ...meta, flags });
+                        attr.value = this.ctx.url.wrap(attr.value, {
+                            ...meta,
+                            flags
+                        });
                         break;
                     case 'srcset':
                         node.setAttribute(`corrosion-${attr.name}`, attr.value);
                         attr.value = this.srcset(attr.value, meta);
                         break;
                     case 'css':
-                        attr.value = this.ctx.css.process(attr.value, { ...meta, context: 'declarationList' });
+                        attr.value = this.ctx.css.process(attr.value, {
+                            ...meta,
+                            context: 'declarationList'
+                        });
                         break;
                     case 'html':
                         node.setAttribute(`corrosion-${attr.name}`, attr.value);
-                        attr.value = this.process(attr.value, { ...config, ...meta });
+                        attr.value = this.process(attr.value, {
+                            ...config,
+                            ...meta
+                        });
                         break;
                     case 'delete':
                         node.removeAttribute(attr.name);
@@ -88,11 +96,12 @@ class HTMLRewriter {
             });
         });
         if (config.document) {
-            for (let i in ast.childNodes) if (ast.childNodes[i].tagName == 'html') ast.childNodes[i].childNodes.forEach(node => {
-                if (node.tagName == 'head') { 
-                    node.childNodes.unshift(...this.injectHead(config.base));
-                };
-            });
+            for (let i in ast.childNodes)
+                if (ast.childNodes[i].tagName == 'html') ast.childNodes[i].childNodes.forEach(node => {
+                    if (node.tagName == 'head') {
+                        node.childNodes.unshift(...this.injectHead(config.base));
+                    };
+                });
         };
         return parse5.serialize(ast);
     };
@@ -101,7 +110,7 @@ class HTMLRewriter {
         iterate(ast, node => {
             if (!node.tagName) return;
             node.attrs.forEach(attr => {
-                if (node.hasAttribute(`corrosion-${attr.name}`)) { 
+                if (node.hasAttribute(`corrosion-${attr.name}`)) {
                     attr.value = node.getAttribute(`corrosion-${attr.name}`);
                     node.removeAttribute(`corrosion-${attr.name}`)
                 };
@@ -110,38 +119,31 @@ class HTMLRewriter {
         return parse5.serialize(ast);
     };
     injectHead() {
-        return [
-            { 
-                nodeName: 'title', 
-                tagName: 'title', 
-                childNodes: [ 
-                    {
-                        nodeName: '#text',
-                        value: this.ctx.config.title || '',
-                    } 
-                ], 
+        return [{
+                nodeName: 'title',
+                tagName: 'title',
+                childNodes: [{
+                    nodeName: '#text',
+                    value: this.ctx.config.title || '',
+                }],
                 attrs: [],
             },
-            { 
-                nodeName: 'script', 
-                tagName: 'script', 
-                childNodes: [], 
-                attrs: [
-                    {
-                        name: 'src',
-                        value: this.ctx.prefix + 'index.js',
-                    },
-                ],
+            {
+                nodeName: 'script',
+                tagName: 'script',
+                childNodes: [],
+                attrs: [{
+                    name: 'src',
+                    value: this.ctx.prefix + 'index.js',
+                }, ],
             },
-            { 
-                nodeName: 'script', 
-                tagName: 'script', 
-                childNodes: [
-                    {
-                        nodeName: '#text',
-                        value: `window.$corrosion = new Corrosion({ window, codec: '${this.ctx.config.codec || 'plain'}',  prefix: '${this.ctx.prefix}', ws: ${this.ctx.config.ws}, cookie: ${this.ctx.config.cookie}, title: ${typeof this.ctx.config.title == 'boolean' ? this.ctx.config.title : '\'' + this.ctx.config.title + '\''}, }); $corrosion.init(); document.currentScript.remove();`
-                    },
-                ], 
+            {
+                nodeName: 'script',
+                tagName: 'script',
+                childNodes: [{
+                    nodeName: '#text',
+                    value: `window.$corrosion = new Corrosion({ window, codec: '${this.ctx.config.codec || 'plain'}',  prefix: '${this.ctx.prefix}', ws: ${this.ctx.config.ws}, cookie: ${this.ctx.config.cookie}, title: ${typeof this.ctx.config.title == 'boolean' ? this.ctx.config.title : '\'' + this.ctx.config.title + '\''}, }); $corrosion.init(); document.currentScript.remove();`
+                }, ],
                 attrs: [],
             }
         ];
@@ -167,7 +169,7 @@ class HTMLRewriter {
 };
 
 class Parse5Wrapper {
-    constructor(node){
+    constructor(node) {
         this.raw = node || {
             attrs: [],
             childNodes: [],
@@ -177,14 +179,14 @@ class Parse5Wrapper {
             tagName: '',
         };
     };
-    hasAttribute(name){
+    hasAttribute(name) {
         return this.raw.attrs.some(attr => attr.name == name);
     };
-    removeAttribute(name){
+    removeAttribute(name) {
         if (!this.hasAttribute(name)) return;
         this.raw.attrs.splice(this.raw.attrs.findIndex(attr => attr.name == name), 1);
     };
-    setAttribute(name, val = ''){
+    setAttribute(name, val = '') {
         if (!name) return;
         this.removeAttribute(name);
         this.raw.attrs.push({
@@ -192,29 +194,33 @@ class Parse5Wrapper {
             value: val,
         });
     };
-    getAttribute(name){
-        return (this.raw.attrs.find(attr => attr.name == name) || { value: null }).value;
+    getAttribute(name) {
+        return (this.raw.attrs.find(attr => attr.name == name) || {
+            value: null
+        }).value;
     };
-    get textContent(){
-        return (this.raw.childNodes.find(node => node.nodeName == '#text') || { value: '', }).value
+    get textContent() {
+        return (this.raw.childNodes.find(node => node.nodeName == '#text') || {
+            value: '',
+        }).value
     };
-    set textContent(val){
+    set textContent(val) {
         if (this.raw.childNodes.some(node => node.nodeName == '#text')) return this.raw.childNodes[this.raw.childNodes.findIndex(node => node.nodeName == '#text')].value = val;
         this.raw.childNodes.push({
             nodeName: '#text',
             value: val,
         });
     };
-    get tagName(){
+    get tagName() {
         return (this.raw.tagName || '').toUpperCase();
     };
-    get nodeName(){
+    get nodeName() {
         return this.raw.nodeName;
     };
-    get parentNode(){
+    get parentNode() {
         return this.raw.parentNode;
     };
-    get childNodes(){
+    get childNodes() {
         return this.raw.childNodes || [];
     };
     get attrs() {
@@ -224,7 +230,8 @@ class Parse5Wrapper {
 
 function iterate(ast, fn = (node = Parse5Wrapper.prototype) => null) {
     fn(new Parse5Wrapper(ast));
-    if (ast.childNodes) for (let i in ast.childNodes) iterate(ast.childNodes[i], fn);
+    if (ast.childNodes)
+        for (let i in ast.childNodes) iterate(ast.childNodes[i], fn);
 };
 
 module.exports = HTMLRewriter;

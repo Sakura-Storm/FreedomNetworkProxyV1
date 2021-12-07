@@ -1,5 +1,5 @@
 class Location {
-    get [Symbol.toPrimitive]() {
+    get[Symbol.toPrimitive]() {
         return () => this.href;
     };
 };
@@ -8,13 +8,13 @@ function createLocation(ctx, url) {
     const _location = new Location();
     const _url = new URL(url);
     [
-        'hash', 
-        'host', 
-        'hostname', 
+        'hash',
+        'host',
+        'hostname',
         'href',
-        'pathname', 
-        'port', 
-        'protocol', 
+        'pathname',
+        'port',
+        'protocol',
         'search',
         'origin',
     ].forEach(property => {
@@ -32,7 +32,7 @@ function createLocation(ctx, url) {
             },
         });
     });
-    if (!ctx.serviceWorker) [
+    if (!ctx.serviceWorker)[
         'assign',
         'replace',
         'reload',
@@ -41,13 +41,13 @@ function createLocation(ctx, url) {
             apply(target, that, args) {
                 if (args[0]) args[0] = ctx.url.wrap(args[0], ctx.meta);
                 return Reflect.apply(target.bind(ctx.window.location), that, args);
-            },  
+            },
         });
     });
     _location.toString = new Proxy(_url.toString, {
         apply(target, that, args) {
             return Reflect.apply(target.bind(_url), that, args);
-        },  
+        },
     });
     return _location;
 };

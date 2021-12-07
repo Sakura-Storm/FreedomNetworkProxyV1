@@ -4,16 +4,20 @@ const https = require('https');
 function createWebSocketProxy(ctx) {
     return function onUpgrade(clientRequest, clientSocket, clientHead) {
         try {
-            const urlData = ctx.url.unwrap(clientRequest.url, { flags: true, });
+            const urlData = ctx.url.unwrap(clientRequest.url, {
+                flags: true,
+            });
             urlData.value = new URL(urlData.value);
             const requestContext = {
                 url: urlData.value,
                 flags: urlData.flags,
                 body: null,
-                headers: { ...clientRequest.headers },
-                method: clientRequest.method, 
+                headers: {
+                    ...clientRequest.headers
+                },
+                method: clientRequest.method,
                 rewrite: ctx,
-                agent: new ((urlData.value.protocol == 'https:' || ctx.config.forceHttps) ? https : http).Agent({
+                agent: new((urlData.value.protocol == 'https:' || ctx.config.forceHttps) ? https : http).Agent({
                     rejectUnauthorized: false,
                 }),
                 address: null,
@@ -47,9 +51,9 @@ function createWebSocketProxy(ctx) {
             }).on('error', () => {
                 clientSocket.end()
             }).end();
-        } catch(err) {
+        } catch (err) {
             clientSocket.end();
-        };  
+        };
     };
 };
 

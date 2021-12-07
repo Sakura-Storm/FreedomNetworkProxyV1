@@ -2,15 +2,19 @@
 // WARNING: this file is used by both the client and the server.
 // Do not use any browser or node-specific API!
 // -------------------------------------------------------------
-const { parse } = require('acorn-hammerhead');
-const { generate } = require('./esotope');
+const {
+    parse
+} = require('acorn-hammerhead');
+const {
+    generate
+} = require('./esotope');
 
 class JSRewriter {
     constructor(ctx) {
-        this.parseOptions = { 
-            allowReturnOutsideFunction: true, 
-            allowImportExportEverywhere: true, 
-            ecmaVersion: 2021, 
+        this.parseOptions = {
+            allowReturnOutsideFunction: true,
+            allowImportExportEverywhere: true,
+            ecmaVersion: 2021,
         };
         this.generationOptions = {
             format: {
@@ -20,8 +24,7 @@ class JSRewriter {
             },
         };
         this.rewrite = ['location', 'parent', 'top'];
-        this.map = [
-            {
+        this.map = [{
                 type: 'MemberExpression',
                 handler: (node, parent) => {
                     let rewrite = false;
@@ -29,7 +32,7 @@ class JSRewriter {
                     if (parent.type == 'NewExpression' && parent.callee == node) return;
                     if (parent.type === 'CallExpression' && parent.callee === node) return;
                     if (node.preventRewrite) return;
-                    switch(node.property.type) {
+                    switch (node.property.type) {
                         case 'Identifier':
                             //if (node.computed) rewrite = true;
                             if (!node.computed && this.rewrite.includes(node.property.name)) {
@@ -69,7 +72,10 @@ class JSRewriter {
                             nodeToRewrite = parent;
                             args.push(this.createLiteral(null), this.createLiteral(parent.operator));
                         };
-                        Object.assign(nodeToRewrite, this.createCallExpression({ type: 'Identifier', name: identifier, }, args));
+                        Object.assign(nodeToRewrite, this.createCallExpression({
+                            type: 'Identifier',
+                            name: identifier,
+                        }, args));
                     };
                 },
             },
@@ -103,25 +109,30 @@ class JSRewriter {
                         args.push(this.createLiteral(parent.operator));
                     };
 
-                    Object.assign(nodeToRewrite, this.createCallExpression({ type: 'Identifier', name: identifier }, args));
+                    Object.assign(nodeToRewrite, this.createCallExpression({
+                        type: 'Identifier',
+                        name: identifier
+                    }, args));
                 },
             },
             {
                 type: 'ImportDeclaration',
                 handler: (node, parent, url) => {
                     if (node.source.type != 'Literal' || !url) return;
-                    node.source = this.createLiteral(ctx.url.wrap(node.source.value, { base: url, }));      
+                    node.source = this.createLiteral(ctx.url.wrap(node.source.value, {
+                        base: url,
+                    }));
                 },
             },
             {
                 type: 'ImportExpression',
                 handler: (node, parent) => {
-                    node.source = this.createCallExpression(this.createMemberExpression(this.createMemberExpression(this.createIdentifier('$corrosion'), this.createIdentifier('url')), this.createIdentifier('wrap')), [ 
+                    node.source = this.createCallExpression(this.createMemberExpression(this.createMemberExpression(this.createIdentifier('$corrosion'), this.createIdentifier('url')), this.createIdentifier('wrap')), [
                         node.source,
                         this.createMemberExpression(this.createIdentifier('$corrosion'), this.createIdentifier('meta')),
                     ]);
                 },
-            },  
+            },
         ];
         this.ctx = ctx;
     };
@@ -133,7 +144,7 @@ class JSRewriter {
                 if (fn) fn.handler(node, parent, url);
             });
             return (url ? this.createHead(url) : '') + generate(ast, this.generationOptions);
-        } catch(e) {
+        } catch (e) {
             return source;
         };
     };
@@ -147,6 +158,7 @@ class JSRewriter {
     iterate(ast, handler) {
         if (typeof ast != 'object' || !handler) return;
         walk(ast, null, handler);
+
         function walk(node, parent, handler) {
             if (typeof node != 'object' || !handler) return;
             handler(node, parent, handler);
@@ -160,7 +172,12 @@ class JSRewriter {
         };
     };
     createCallExpression(callee, args) {
-        return { type: 'CallExpression', callee, arguments: args, optional: false, };
+        return {
+            type: 'CallExpression',
+            callee,
+            arguments: args,
+            optional: false,
+        };
     };
     createArrayExpression(...elements) {
         return {
@@ -182,7 +199,11 @@ class JSRewriter {
         }
     };
     createIdentifier(name, preventRewrite) {
-        return { type: 'Identifier', name, preventRewrite: preventRewrite || false,  };
+        return {
+            type: 'Identifier',
+            name,
+            preventRewrite: preventRewrite || false,
+        };
     };
 };
 

@@ -20,7 +20,7 @@ const defaultConfig = {
     requestMiddleware: [],
     responseMiddleware: [],
     standardMiddleware: true,
-};  
+};
 
 class Corrosion extends require('../rewrite') {
     constructor(config = defaultConfig) {
@@ -28,7 +28,7 @@ class Corrosion extends require('../rewrite') {
         if (this.config.standardMiddleware) {
             this.config.requestMiddleware.unshift(
                 middleware.requestHeaders,
-            );  
+            );
             this.config.responseMiddleware.unshift(
                 middleware.responseHeaders,
                 middleware.decompress,
@@ -39,16 +39,16 @@ class Corrosion extends require('../rewrite') {
         this.upgrade = createWebSocketProxy(this);
         this.request = createRequestProxy(this);
         if (!fs.existsSync(path.join(__dirname, 'bundle.js'))) this.bundleScripts();
-    }; 
+    };
     bundleScripts() {
         webpack({
-            mode: 'none',
-            entry: path.join(__dirname, '../../lib/browser/index.js'),
-            output: {
-                path: __dirname,
-                filename: 'bundle.js',
-            }
-        }, err => 
+                mode: 'none',
+                entry: path.join(__dirname, '../../lib/browser/index.js'),
+                output: {
+                    path: __dirname,
+                    filename: 'bundle.js',
+                }
+            }, err =>
             console.log(err || 'Bundled scripts')
         );
     };
